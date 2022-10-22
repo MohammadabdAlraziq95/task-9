@@ -39,8 +39,7 @@ log = logging.getLogger(__name__)
 apiCalledCounter = 0
 
 class PressureSensorViewSet(viewsets.ModelViewSet):
-    #  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
+     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
      queryset = PressureSensor.objects.all()
      serializer_class = PressureSensorSerializer
      filter_backends = [DjangoFilterBackend]

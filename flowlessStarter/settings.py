@@ -30,7 +30,26 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+# INSTALLED_APPS = [
+#     'fl_tags.apps.FlTagsConfig',
+#     'polls.apps.PollsConfig',
+#     'rest_framework',
+#     "Pressure",
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'django.contrib.staticfiles',
+#     'django_filters',
+#     'django_seed',
+
+# ]
+
+
+SHARED_APPS = (
+     'django_tenants', 
+    'customers',
     'fl_tags.apps.FlTagsConfig',
     'polls.apps.PollsConfig',
     'rest_framework',
@@ -43,10 +62,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'django_seed',
+)
 
-]
+TENANT_APPS = (
+    'customers',
+    'Pressure',
+    # 'polls',
+    # 'fl_tags',
+)
+
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
+
+TENANT_MODEL = "customers.Client" 
+
+TENANT_DOMAIN_MODEL = "customers.Domain" 
 
 MIDDLEWARE = [
+     'django_tenants.middleware.main.TenantMainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,8 +99,8 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                  'django.template.context_processors.request',
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -83,8 +116,8 @@ WSGI_APPLICATION = 'flowlessStarter.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'flowless',
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'customers1',
         'USER': 'postgres',
         'PASSWORD': '0327' ,
         'HOST': 'localhost',
@@ -92,6 +125,9 @@ DATABASES = {
 
     }
 }
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 FIXTURE_DIRS = [
     'fixtures',
 ]
@@ -140,11 +176,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
+    
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
          'rest_framework.permissions.IsAuthenticatedOrReadOnly'
-
     ],
+
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
